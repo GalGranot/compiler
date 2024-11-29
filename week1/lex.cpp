@@ -13,6 +13,7 @@ tasks:
     1. add smart pointers
 */
 
+
 struct TrieNode
 {
     std::unordered_map<char, TrieNode*> children;
@@ -126,7 +127,7 @@ public:
     }
 };
 
-int main(int argc, char* argv[])
+int main()
 {
     Lexer lexer;
     for(std::string s : lexer.lex("return2.c"))
