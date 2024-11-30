@@ -1,24 +1,44 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cctype>
 #include <string>
-#include <unistd.h>
 #include <unordered_map>
+#include <fstream>
+#include <variant>
 
 #include "utils.h"
 
-/*
-tasks:
-    1. add smart pointers
-*/
+typedef enum
+{
+    INT = 0,
+    RETURN,
+    MAIN,
+    SEMICOLON,
+    L_PARENTHESIS,
+    R_PARENTHESIS,
+    L_BRACKET,
+    R_BRACKET,
+    NUMBER_LITERAL,
+} TokenType;
 
+const TokenType TokenTypeVector[] = {
+    INT,
+    RETURN,
+    MAIN,
+    SEMICOLON,
+    L_PARENTHESIS,
+    R_PARENTHESIS,
+    L_BRACKET,
+    R_BRACKET,
+    NUMBER_LITERAL,
+    STRING_LITERAL,
+    CHAR_LITERAL
+};
+
+using TokenValue = std::variant<void*, char, std::string, int>;
+typedef std::pair<TokenType, TokenValue> Token;
 
 struct TrieNode
 {
     std::unordered_map<char, TrieNode*> children;
     bool isKeyword = false;
-
 };
 
 void clearTrie(TrieNode* node)
@@ -33,7 +53,8 @@ class Lexer
 {
 private:
     TrieNode* root = new TrieNode();
-
+    std::unordered_map<std::string, TokenType> string2Token;
+    
     void addKeyword(const std::string& keyword)
     {
         TrieNode* node = root;
@@ -48,7 +69,6 @@ private:
 
     bool isKeyword(const std::string& token)
     {
-        std::cout << "checking if token with " << token << std::endl;
         TrieNode* node = root;
         for(char c : token) {
             if(node->children.find(c) == node->children.end()) {
@@ -57,53 +77,55 @@ private:
             node = node->children[c];
         }
         if(node->isKeyword) {
-            std::cout << token << " is token!" << std::endl;
             return true;
         }
         return false;
     }
 
-    void processToken(std::string& token, std::vector<std::string>& tokens)
+    void processToken(const std::string& buffer, std::vector<Token>& tokens)
     {
-        std::cout << "processing token " << token << std::endl;
-        if(!isKeyword(token)) {
-            //handle non keywords FIXME
-            return;
+        TokenValue value;
+        TokenType type;
+        if(isKeyword(buffer)) {
+            
+        } else {
         }
-        tokens.push_back(token);
-        token.clear();
+        tokens.push_back(t);
+    }
+
+    void initMap()
+    {
+        for(TokenType t : TokenTypeVector) {
+            switch(t) {
+            case INT:
+                string2Token["int"] = t;
+                break;
+            case RETURN:
+                string2Token["return"] = t;
+                break;
+            case MAIN:
+                string2Token["main"] = t;
+                break;
+            case SEMICOLON:
+                string2Token[";"] = t;
+                break;
+            case L_PARENTHESIS:
+                string2Token[")"] = t;
+                break;
+            case R_PARENTHESIS:
+                string2Token["("] = t;
+                break;
+            case L_BRACKET:
+                string2Token["{"] = t;
+                break;
+            case R_BRACKET:
+                string2Token["}"] = t;
+                break;
+            }
+        }
     }
 
 public:
-    std::vector<std::string> lex(const std::string& fileName)
-    {
-        std::ifstream file(fileName);
-        if(!file.is_open()) {
-            errorAndExit("ifstream");
-        }
-        std::vector<std::string> tokens;
-        std::string currentToken;
-        char byte;
-
-        while(file.get(byte)) {
-            std::cout << "byte = " << byte << ", current token = " << currentToken << std::endl;
-            if(std::isspace(static_cast<unsigned char>(byte))) {
-                if(currentToken.empty()) { //token buffer already tokenzied
-                    continue;
-                }
-                processToken(currentToken, tokens);
-                continue;
-            }
-            if(isKeyword(currentToken)) {
-                processToken(currentToken, tokens);
-            }
-            currentToken += byte;
-        }
-        std::cout << "last token! " << currentToken << std::endl;
-        processToken(currentToken, tokens);
-        return tokens;
-    }
-
     Lexer()
     {
         const std::vector<std::string> keywords = {
@@ -119,17 +141,32 @@ public:
         for(const std::string& keyword : keywords) {
             addKeyword(keyword);
         }
+        initMap();
     }
-
+    
     ~Lexer()
     {
         clearTrie(root);
     }
-};
 
-int main()
-{
-    Lexer lexer;
-    for(std::string s : lexer.lex("return2.c"))
-        std::cout << s << std::endl;
-}
+    std::vector<Token> lex(const std::string& fileName)
+    {
+        std::ifstream file(fileName);
+        if(!file.is_open()) {
+            errorAndExit("ifstream");
+        }
+        std::vector<Token> tokens;
+        std::string buffer;
+        char byte;
+
+        while(file.get(byte)) {
+            if(std::isspace(static_cast<unsigned char>(byte)) && !buffer.empty()) {
+                processToken(buffer, tokens);
+            } else {
+                buffer += byte;
+            }
+        }
+        processToken(buffer, tokens);
+        return tokens;
+    }
+};
