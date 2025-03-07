@@ -25,5 +25,4 @@ struct Token
 
 std::vector<Token> lex(const std::string& file);
 
-
 #endif //__LEXER_H__

@@ -104,23 +104,3 @@ std::vector<Token> lex(const std::string& filename)
 
     return tokenize_lexes(tokens);
 }
-
-std::unordered_map<TokenType, std::string> enumstostring = {
-    {TokenType::INT, "int"},
-    {TokenType::RETURN, "return"},
-    {TokenType::LBRACE, "{"},
-    {TokenType::RBRACE, "}"},
-    {TokenType::LPAREN, "("},
-    {TokenType::RPAREN, ")"},
-    {TokenType::SEMICOLON, ";"},
-    {TokenType::IDENTIFIER, "identifier"},
-    {TokenType::NUMBER, "number"}
-};
-
-#include <iostream>
-void print_lexes(std::vector<Token> tokens)
-{
-    for(auto& t : tokens) {
-        std::cout << enumstostring[t.type] << ": " << t.value << std::endl;
-    }
-}
