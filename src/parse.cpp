@@ -106,12 +106,3 @@ void print_lexes(std::vector<Token> tokens)
     }
     std::cout <<"=======lexes=======" << std::endl;
 }
-
-// int main()
-// {
-
-//     Parser parser("week1/return_2.c");
-//     // print_lexes(parser.tokens);
-//     print_ast(parser.parse());
-//     return 0;
-// }

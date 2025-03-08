@@ -1,5 +1,6 @@
 CXX = g++
-CXXFLAGS = -g -Wall -Wextra -Werror -Wpedantic -std=c++17 -O2 -MMD -MP -fexceptions -fvisibility=hidden -fsanitize=address -Wfatal-errors
+CXXFLAGS = -g -Wall -Wextra -Werror -Wpedantic -std=c++17 -O2 -MMD -MP -fexceptions -fvisibility=hidden -Wfatal-errors \
+#	-fsanitize=address
 
 SRC_DIR = src
 OBJ_DIR = obj
